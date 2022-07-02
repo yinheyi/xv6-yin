@@ -13,12 +13,12 @@
 // super block describes the disk layout:
 struct superblock {
   uint size;         // Size of file system image (blocks)
-  uint nblocks;      // Number of data blocks
-  uint ninodes;      // Number of inodes.
+  uint nblocks;      // 整个文件系统中，用于保存实际数据的block块的数目
+  uint ninodes;      // 整个文件系统中，inode的数目
   uint nlog;         // Number of log blocks
   uint logstart;     // Block number of first log block
-  uint inodestart;   // Block number of first inode block
-  uint bmapstart;    // Block number of first free map block
+  uint inodestart;   // inode所占磁盘空间的起始block块（即在第几个block块上开始是存放inode的地方)
+  uint bmapstart;    //  BITMAP(用于标记每一个数据块的block是否可用)所占磁盘空间的起始block块。
 };
 
 #define NDIRECT 12
@@ -26,13 +26,16 @@ struct superblock {
 #define MAXFILE (NDIRECT + NINDIRECT)
 
 // On-disk inode structure
+// 实际磁盘上保存的inode的数据结构
 struct dinode {
-  short type;           // File type
-  short major;          // Major device number (T_DEV only)
-  short minor;          // Minor device number (T_DEV only)
-  short nlink;          // Number of links to inode in file system
-  uint size;            // Size of file (bytes)
-  uint addrs[NDIRECT+1];   // Data block addresses
+  short type;              // inode的类型，包含：
+  short major;             // Major device number (T_DEV only)
+  short minor;             // Minor device number (T_DEV only)
+  short nlink;             // Number of links to inode in file system
+  uint size;               // 该inode对应的数据的大小
+  uint addrs[NDIRECT+1];   // 该inode对应的数据的block块的位置. 前NDIRECT个block直接保存用户数据，
+                           // 最后一个block里又保存了NDIRECT个block块的块号， 相当于两层,了，所以
+                           // 文件最大为:512B * 12 + 512B * 12 = 12KB.
 };
 
 // Inodes per block.
@@ -51,7 +54,7 @@ struct dinode {
 #define DIRSIZ 14
 
 struct dirent {
-  ushort inum;
-  char name[DIRSIZ];
+  ushort inum;        // 目录或文件对应inode的磁盘上的索引号，即第几个inode。
+  char name[DIRSIZ];  // 名字字符串
 };
 
