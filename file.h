@@ -12,7 +12,7 @@ struct file {
 // in-memory copy of an inode
 struct inode {
   uint dev;           // Device number
-  uint inum;          // Inode number
+  uint inum;          // 对应的磁盘上的dinode索引号（即第几个dinode）
   int ref;            // Reference count
   struct sleeplock lock; // protects everything below here
   int valid;          // inode has been read from disk?

@@ -38,12 +38,12 @@ struct logheader {
 
 struct log {
   struct spinlock lock;
-  int start;
-  int size;
-  int outstanding; // how many FS sys calls are executing.
-  int committing;  // in commit(), please wait.
+  int start;       // log信息在磁盘上的位置（开始的block块的索引号)
+  int size;        // log区的总的block块的数目。
+  int outstanding; // 当前正在使用LOG机制的文件系统调用数目(目的是别超过了LOG系统总容量)
+  int committing;  // 当前是不是正处于LOG的提交中,也就是正在写LOG进入磁盘呢
   int dev;
-  struct logheader lh;
+  struct logheader lh;  // 磁盘logheader在内存中的一份映射
 };
 struct log log;
 

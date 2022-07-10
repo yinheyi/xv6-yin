@@ -91,11 +91,15 @@ idestart(struct buf *b)
   outb(0x1f4, (sector >> 8) & 0xff);
   outb(0x1f5, (sector >> 16) & 0xff);
   outb(0x1f6, 0xe0 | ((b->dev&1)<<4) | ((sector>>24)&0x0f));
-  if(b->flags & B_DIRTY){
+
+  // 写操作，CPU只负责写到磁盘的串口寄存器,  磁盘自己会执行真正的写到磁盘的操作.完成之后，会通过中断告诉CPU
+  // 读操作，CPU通知磁盘读取512字节内容到磁盘寄存器，完成之后，通过中断告诉CPU，CPU之后会把内容复制到内存中
+  // 细节，看中断处理函数ideintr()
+  if(b->flags & B_DIRTY){ 
     outb(0x1f7, write_cmd);
     outsl(0x1f0, b->data, BSIZE/4);
   } else {
-    outb(0x1f7, read_cmd);
+    outb(0x1f7, read_cmd);  // 读完之后，会通过中断告诉CPU
   }
 }
 

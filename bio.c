@@ -27,12 +27,10 @@
 #include "buf.h"
 
 struct {
-  struct spinlock lock;
-  struct buf buf[NBUF];
-
-  // Linked list of all buffers, through prev/next.
-  // head.next is most recently used.
-  struct buf head;
+  struct spinlock lock;   // 锁
+  struct buf buf[NBUF];   // buffer块数组,一大块连续的buffer
+  struct buf head;        // 它可以看出一个哨兵，目的方便双向链表的操作
+                          // head.next 是第一个buffer块， 它是最近使用过的!
 } bcache;
 
 void
