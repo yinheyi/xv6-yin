@@ -13,10 +13,10 @@
 struct pipe {
   struct spinlock lock;
   char data[PIPESIZE];
-  uint nread;     // number of bytes read
-  uint nwrite;    // number of bytes written
-  int readopen;   // read fd is still open
-  int writeopen;  // write fd is still open
+  uint nread;     // number of bytes read, 等价于下一个要读取的位置。注意，类型为无符号类型，达到最大值时自动反转。
+  uint nwrite;    // number of bytes written, 等价于下一下要写入的位置。类型为无符号类型。
+  int readopen;   // read fd is still open, 读该管道的进程数
+  int writeopen;  // write fd is still open, 写该管道的进程数
 };
 
 int
